@@ -1,5 +1,3 @@
-
-
 const fs = require("fs");
 const path = require("path");
 const webpack = require("webpack");
@@ -23,6 +21,14 @@ const getClientEnvironment = require("./env");
 const ModuleNotFoundPlugin = require("react-dev-utils/ModuleNotFoundPlugin");
 const ForkTsCheckerWebpackPlugin = require("react-dev-utils/ForkTsCheckerWebpackPlugin");
 const typescriptFormatter = require("react-dev-utils/typescriptFormatter");
+
+// 移动端适配添加 - 插入
+const postcssAspectRatioMini = require("postcss-aspect-ratio-mini");
+const postcssPxToViewport = require("postcss-px-to-viewport");
+const postcssWriteSvg = require("postcss-write-svg");
+const postcssCssnext = require("postcss-preset-env"); //这个插件已经更新 postcss-preset-env 所以请使用 "postcss-preset-env": "6.0.6",
+const postcssViewportUnits = require("postcss-viewport-units");
+const cssnano = require("cssnano");
 
 // Source maps are resource heavy and can cause out of memory issue for large source files.
 const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== "false";
@@ -95,6 +101,33 @@ module.exports = function(webpackEnv) {
                 flexbox: "no-2009"
               },
               stage: 3
+            }),
+            // -----插入适配移动端配置项-----👇
+            postcssAspectRatioMini({}),
+            postcssPxToViewport({
+              viewportWidth: 750, // (Number) The width of the viewport.
+              viewportHeight: 1334, // (Number) The height of the viewport.
+              unitPrecision: 3, // (Number) The decimal numbers to allow the REM units to grow to.
+              viewportUnit: "vw", // (String) Expected units.
+              selectorBlackList: [".ignore", ".hairlines"], // (Array) The selectors to ignore and leave as px.
+              minPixelValue: 1, // (Number) Set the minimum pixel value to replace.
+              mediaQuery: false // (Boolean) Allow px to be converted in media queries.
+            }),
+            postcssWriteSvg({
+              utf8: false
+            }),
+            postcssCssnext({}),
+            postcssViewportUnits({}),
+            cssnano({
+              //旧的 --坑点
+              // preset: "advanced",
+              // autoprefixer: false,
+              // "postcss-zindex": false
+              //新配置继续使用高级配置,按照这个配置
+              "cssnano-preset-advanced": {
+                zindex: false,
+                autoprefixer: false
+              }
             })
           ],
           sourceMap: isEnvProduction && shouldUseSourceMap
@@ -318,8 +351,8 @@ module.exports = function(webpackEnv) {
               test: /\.styl$/,
               use: [
                 require.resolve("style-loader"),
-                require.resolve("css-loader"),
-                require.resolve("stylus-loader")
+                require.resolve("css-loader")
+                // require.resolve("stylus-loader")
               ]
             },
             {
