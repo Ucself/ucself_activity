@@ -351,8 +351,8 @@ module.exports = function(webpackEnv) {
               test: /\.styl$/,
               use: [
                 require.resolve("style-loader"),
-                require.resolve("css-loader")
-                // require.resolve("stylus-loader")
+                require.resolve("css-loader"),
+                require.resolve("stylus-loader")
               ]
             },
             {

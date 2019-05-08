@@ -15,7 +15,7 @@ import "./style.styl";
 export default class FutureClinic extends Component {
   constructor(props) {
     super(props);
-    this.setHtmlFontSize();
+    // this.setHtmlFontSize();
     document.title = "未来诊所介绍";
     this.state = {
       height: window.innerHeight || document.body.clientHeight
