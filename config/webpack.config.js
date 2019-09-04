@@ -93,6 +93,15 @@ module.exports = function(webpackEnv) {
                 flexbox: "no-2009"
               },
               stage: 3
+            }),
+            require("postcss-pxtorem")({
+              rootValue: 100 * (750 / 750),
+              unitPrecision: 5,
+              propList: ["*"],
+              selectorBlackList: [/^\.nop2r/],
+              replace: true,
+              mediaQuery: false,
+              minPixelValue: 0
             })
           ],
           sourceMap: isEnvProduction && shouldUseSourceMap
@@ -313,10 +322,40 @@ module.exports = function(webpackEnv) {
             // smaller than specified limit in bytes as data URLs to avoid requests.
             // A missing `test` is equivalent to a match.
             {
-              test: /\.styl$/,
+              test: /\.styl|.css$/,
               use: [
                 require.resolve("style-loader"),
                 require.resolve("css-loader"),
+                {
+                  // Options for PostCSS as we reference these options twice
+                  // Adds vendor prefixing based on your specified browser support in
+                  // package.json
+                  loader: require.resolve("postcss-loader"),
+                  options: {
+                    // Necessary for external CSS imports to work
+                    // https://github.com/facebook/create-react-app/issues/2677
+                    ident: "postcss",
+                    plugins: () => [
+                      require("postcss-flexbugs-fixes"),
+                      require("postcss-preset-env")({
+                        autoprefixer: {
+                          flexbox: "no-2009"
+                        },
+                        stage: 3
+                      }),
+                      require("postcss-pxtorem")({
+                        rootValue: 100 * (750 / 750),
+                        unitPrecision: 5,
+                        propList: ["*"],
+                        selectorBlackList: [/^\.nop2r/],
+                        replace: true,
+                        mediaQuery: false,
+                        minPixelValue: 0
+                      })
+                    ],
+                    sourceMap: isEnvProduction && shouldUseSourceMap
+                  }
+                },
                 require.resolve("stylus-loader")
               ]
             },
